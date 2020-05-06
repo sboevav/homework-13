@@ -118,8 +118,8 @@
 	Hint: Some lines were ellipsized, use -l to show in full.
 	```
 6. С помощью утилиты audit2why определяем из сообщений аудита SELinux /var/log/audit/audit.log причину запрета доступа. Видим, что в проблемах запуска nginx фигурирует наш порт 8182.  
-[root@otuslinux vagrant]# audit2why < /var/log/audit/audit.log
 	```bash
+	[root@otuslinux vagrant]# audit2why < /var/log/audit/audit.log
 	...
 	type=AVC msg=audit(1588186428.139:943): avc:  denied  { name_bind } for  pid=5057 comm="nginx" src=8182 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 
@@ -335,11 +335,11 @@
 	```
 16. Сначала утилита ausearch находим события в журнальных файлах, связанные с nginx, а затем передаем их утилите audit2allow, которая создает разрешающие правила политики SELinux на основе этих событий, которые содержат сообщения о запрете операций. Данный вариант решения проблемы следует применять с осторожностью и лишний раз убедиться с помощью утилиты audit2why, что разрешаемые операции не представляют угрозы безопасности.  
 	```bash
-[root@otuslinux vagrant]# ausearch -c 'nginx' --raw | audit2allow -M my-nginx
-******************** IMPORTANT ***********************
-To make this policy package active, execute:
+	[root@otuslinux vagrant]# ausearch -c 'nginx' --raw | audit2allow -M my-nginx
+	******************** IMPORTANT ***********************
+	To make this policy package active, execute:
 
-semodule -i my-nginx.pp
+	semodule -i my-nginx.pp
 	```
 17. Теперь активируем созданный модуль политики с помощью semodule - инструмента управления модулями политик безопасности в ядре. После этого пытаемся запустить nginx и смотрим его статус - видим что все нормально. Теперь обращаемся к серверу по порту 8182 и нормально получаем стартовую страницу.  
 	```bash
